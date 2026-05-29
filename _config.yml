@@ -1,0 +1,32 @@
+# Site settings
+title: Pankil Shah
+email: contact@pankilshah.com
+description: >-
+  Principal Technical Program Manager (TPM) & Engineering Project Manager (EPM). 
+  Specializing in AI-Native Platform Engineering, Guardrails-as-a-Service, and 
+  Shared Data Platforms.
+baseurl: ""
+url: "https://pankilshahattpm.github.io"
+
+# Social profiles
+github_username: pankilshahattpm
+linkedin_username: pankilshah
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Render settings
+markdown: kramdown
+highlighter: rouge
+permalink: /blog/:title/
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
