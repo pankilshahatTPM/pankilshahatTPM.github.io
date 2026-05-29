@@ -1,9 +1,8 @@
 ---
 layout: post
 title: "Your Job Is Disappearing. I Watched Mine Disappear Six Times."
-date: 2026-05-28 22:15:00 -0700
-categories: career-evolution platform-governance
-author: "Pankil Shah"
+permalink: /blog/your-job-is-disappearing-i-watched-mine-disappear-six-times/
+date: 2026-05-28
 ---
 
 ### *Why Automation Always Reveals the Project Management Work You Previously Couldn't See*
