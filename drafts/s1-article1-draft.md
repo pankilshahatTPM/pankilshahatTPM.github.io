@@ -168,7 +168,19 @@ A weekly summary email tells 40 engineers about 126 findings. Most of those engi
 
 The automated report was the right solution to the wrong problem. It made the EPM's aggregation work disappear. It didn't make the right information reach the right person at the right time.
 
-That's a routing problem, not a reporting problem. And it's what led to building the agent layer on top of this — three agents that don't broadcast status, but route targeted actions: to the right DRI when their finding is overdue, to the right manager when a component is at risk, to the EPM when a reply indicates a genuine blocker. One message per person, only when action is needed.
+That's a routing problem, not a reporting problem. And it's what led to building the agent layer on top of this.
+
+The solution wasn't a better email template. It was a different model entirely: stop broadcasting status to everyone and start routing targeted actions to the right person at the right moment.
+
+Three behaviors replaced the weekly broadcast:
+
+**Targeted escalation emails.** When a finding goes overdue or misses a committed date, a Claude skill sends one email — to the assignee, their immediate manager, and the EPM and engineering manager. Not a group email. Not a channel post. A direct message to exactly the people responsible for that specific item, with the specific ask. Nobody else receives it.
+
+**Meeting blocks for critical tickets.** For findings flagged as critical or severely overdue, the agent doesn't just send an email — it creates a calendar block with the DRI to work through the issue directly. The meeting exists before anyone has to ask for it.
+
+**Reply-driven updates.** When a DRI responds — done, blocked, or acknowledged — a skill parses the reply, updates the tracker, and routes accordingly. A "blocked" reply triggers an immediate notification to the EPM and creates a follow-up calendar block. A "done" reply closes the loop silently. The EPM sees only what requires a decision.
+
+All three run via Claude skills on schedule or triggered by incoming replies. The EPM's inbox changes from a place where status arrives to a place where decisions arrive.
 
 That's the next article.
 
