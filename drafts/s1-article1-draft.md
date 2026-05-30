@@ -1,151 +1,150 @@
-# S1/Article 1 — DRAFT
-# "I Automated My Weekly Security Program Status Report"
-**Status:** First draft — fill in [YOUR VOICE] sections, then publish
+# S1/Article 1 — DRAFT v2
+# "I Stopped Chasing Engineers for Status Updates. Here's What I Built Instead."
+**Status:** First draft — [YOUR VOICE] markers need your words, everything else is from the actual build
 **Word count target:** 1,200–1,500
 
 ---
 
-Every Monday morning I opened my issue tracker, filtered by component — six of them — and checked the state of 126 security findings across 40+ engineers. I copied the numbers into a spreadsheet. Colored some cells red. Wrote a status email. Sent it.
+Every week I spent 90 minutes preparing a security program status report. I opened the issue tracker, filtered by component — six of them, no hierarchy — checked each engineer's state, copy-pasted numbers into a spreadsheet, and sent an email nobody was confident was accurate.
 
-Ninety minutes. Every week. For months.
-
-Then I automated it. Here's exactly what I built, what broke, and what it still can't do.
+The problem wasn't that I was slow. The problem was that the data was wrong before I even started.
 
 ---
 
-## The Manual Version
+## The Real Problem Was Two Problems
 
-[YOUR VOICE — 2–3 sentences on what the manual process actually felt like. Use this as a prompt: what was the most painful part — pulling the data, the formatting, chasing engineers who hadn't updated their tickets, or realizing on Thursday that something you thought was "In Progress" hadn't moved in three weeks?]
+When I started managing this program, 126 security findings were tracked across 6 engineering components with no parent/child hierarchy. Radar's native interface wasn't designed to answer the questions a program manager needs answered every day: *who owns what, what's the state of each component, what's overdue?* I tried building a tracker in Quip first. It worked for human viewing but couldn't be automated reliably — every update was still manual.
 
-The underlying problem: the data existed in the issue tracker. The status report was me, manually translating it into something stakeholders could read. Every week. The same translation. With no guarantee I'd catch everything.
+The harder problem was the data source itself.
 
-At the time the program had:
-- 126 AIS security findings across 6 engineering components
-- A fixed certification deadline (May 31, 2026)
-- 40+ individual DRIs, each owning 1–15 findings
-- One EPM: me
+Engineers were supposed to update their radar tickets as they made progress. In practice, they didn't — not because they didn't care, but because updating a ticket manually is friction that competes with actually fixing the issue. A finding would be code-complete, tested, and deployed to staging. The radar still said "Analyze." I had no way to know unless I asked.
+
+So I was spending 90 minutes each week building a report from data I knew was stale.
+
+[YOUR VOICE — 1–2 sentences on what the consequence was. Did you have inaccurate escalations? Did engineering leads push back on your counts? Did leadership make decisions on wrong numbers?]
 
 ---
 
-## What I Built
+## Solution 1: The Automated Dashboard
 
-Three moving parts. In order of build sequence:
+The first problem — manual status aggregation — I solved with a Claude skill and an HTML dashboard.
 
-**Part 1 — The query**
+**The query layer**
 
-Query the issue tracker for all findings tagged to the program. Two API calls, batched at 75 per request because the API caps there. Fields requested per finding: state, substate, assignee, sprint/event field, target date, component, severity prefix in the title, closedAt, lastModifiedAt.
+Using the Radar MCP (Radar's API exposed as a tool the LLM can call), I built a skill that runs on a schedule and pulls the current state of every finding tagged to the program. Two batched API calls, 75 findings per call. Fields per finding: state, assignee, sprint/event field, target date, component, severity from the title prefix, closedAt, lastModifiedAt.
 
-**Part 2 — The classification engine**
+**The classification engine**
 
-Raw tracker states don't map cleanly to what stakeholders need to see. I defined four display states and a classification rule (first match wins):
+Raw tracker states don't map cleanly to what stakeholders need. I defined four display states and a rule set (first match wins):
 
 ```
-Tracker: Closed or Resolved          → Display: Closed
-Tracker: Verify                      → Display: Verify
-Tracker: In Development / Integrate  → Display: In Progress
-Substate: Review                     → Display: In Progress
-Sprint field set (any value)         → Display: In Progress
-Everything else                      → Display: Not Started
+Closed / Resolved          →  Closed
+Verify                     →  Verify  
+In Development / Integrate →  In Progress
+Substate: Review           →  In Progress
+Sprint field set           →  In Progress
+Everything else            →  Not Started
 ```
 
-Severity comes from the title prefix — `[Critical]`, `[High]`, `[Mod]` — not from the tracker's priority field. Priority gets set inconsistently. The title prefix is set once and stays.
+Severity from the title prefix (`[Critical]`, `[High]`, `[Mod]`), not from the priority field — priority gets set inconsistently and overwritten by automated workflows. DRI name always fetched live from the assignee field, never from cache. (More on why in the "What Broke" section.)
 
-DRI name is always fetched live from the assignee field. Never cached. (More on why in the "What Broke" section.)
+**The dashboard**
 
-**Part 3 — The output**
+All findings pushed to a live HTML portal. The portal auto-computes: percentage closed, counts by state, counts by component. A new branch, PR, and merge every time it runs. Auto-deploys in ~3 minutes. Stakeholders bookmark it. It's always current.
 
-All 129 classified findings pushed to a live dashboard. The dashboard auto-computes: percentage closed, counts by state, counts by component. Always current. No manual updates.
+Before: 90 minutes, weekly, manual.
+After: under 2 minutes, daily, automated.
 
-Status email generated from the same data: subject line, state breakdown, top items needing attention, "help needed" section. Written to an `.eml` file, opens in the mail client, reviewed, sent.
+216 pull requests merged since February 2026.
 
-Total time per run: under 2 minutes.
+---
 
-**The cache layer**
+## Solution 2: The Git-to-Radar Integration
 
-This is the part nobody talks about in "I automated X" articles. Without caching, every daily run makes 2–3 API calls to the tracker. On a daily schedule: ~600 calls per month, and the whole thing is slow.
+The second problem — engineers not updating their tickets — required a different approach. Asking people to remember a manual step doesn't work. Making the step automatic does.
 
-The fix: write results to `/tmp/status-cache-YYYY-MM-DD.json` on the first run of each day. On subsequent runs, load the cache, then batch-check `lastModifiedAt` for all 129 findings in a single API call. Re-fetch only the findings that changed.
+I worked with the QE and SRE teams to deploy a git-to-radar integration. The rule: every pull request an engineer opens automatically updates the corresponding radar ticket with the PR details and moves the state forward.
 
-Real number: on most days, 1–3 findings changed out of 129. The cache reduced API calls by ~85%.
+Engineer opens a PR → radar moves from Analyze to In Development, PR link attached.
+PR merges to dev → radar moves to Integrate.
+Deploy to stage → radar moves to Verify.
+Deploy to prod → radar moves to Closed.
 
-**The portal**
+The engineer does the work. The ticket updates itself.
 
-The status report doesn't just go to email — it also updates a live web portal (`index.html`) that stakeholders can bookmark. Every finding, every state, every DRI, always current. Branch → PR → merge → auto-deploys in ~3 minutes.
+[YOUR VOICE — what was the hardest part of getting this integration in place? Was it the SRE team, the Radar API permissions, getting engineers to include the radar ID in their PR titles, or something else?]
 
-216 PRs opened and merged since February 2026. Every one generated by the skill, reviewed by me, merged.
+This was the more impactful fix of the two. The automated dashboard was only useful if the data it read was accurate. The git integration made the data accurate.
 
 ---
 
 ## What Broke
 
-**1. Assignee staleness**
+**Assignee staleness**
 
-The tracker's `lastModifiedAt` field does not update when only the assignee changes. An engineer gets reassigned — `lastModifiedAt` stays the same. The cache doesn't know. The status report emails the old owner.
+The tracker's `lastModifiedAt` field doesn't update when only the assignee changes. An engineer gets reassigned — the ticket looks unchanged to my cache. The status report emails the previous owner.
 
-This happened in production. An engineer replied: "that's not my finding." 
+This happened. The engineer replied: "that's not mine." 
 
-Fix: always re-fetch `assignee` live for all non-Closed findings on every run, even on cache hits. The extra API overhead is worth it.
+Fix: always re-fetch the assignee field live for all non-Closed findings, even on cache hits. One extra API call per batch, worth it every time.
 
-**2. The 48-hour visibility rule**
+**The 48-hour visibility rule**
 
-First version: hide all closed findings from the dashboard. Stakeholders complained — they couldn't see what had just been closed.
+First version: hide all closed findings. Stakeholders wanted to see what just closed.
+Second version: show all 65 closed findings. Too noisy in a 129-row table.
+Correct version: show closed findings for 48 hours after `closedAt`, then hide them. The dashboard shows the recent story without carrying all of history.
 
-Second version: show all closed findings. 65 closed rows in a 129-row table. Too noisy.
+**Component mapping**
 
-Correct version: `hidden = closedAt < (now - 48 hours)`. Findings closed in the last 48 hours stay visible. Older closed findings disappear. The dashboard shows the recent story, not the full history.
+The tracker stores findings under the raw service component name. The dashboard uses a simplified six-area taxonomy (Agents, APIs, Evaluations, Ingestions, Infrastructure, Events). These are different. First version mapped everything to "Ingestions."
 
-**3. Component mapping**
+Fix: maintain a lookup from parent umbrella radar ID to display component name. Any finding whose ID appears in a parent's child list gets that parent's taxonomy name.
 
-The tracker stores findings under the actual service component (e.g. "Platform | Security Module"). The dashboard uses a simplified six-area taxonomy (Agents, APIs, Evaluations, Ingestions, Infrastructure, Keystone Events). These are different. First version mapped everything to "Ingestions."
+**The keyword ID problem**
 
-Fix: maintain a separate lookup from parent umbrella radar ID to display component name. Any finding whose ID appears in a parent's `relatedProblemIds` gets that parent's taxonomy name.
+Adding the program tag to a finding via the API requires a numeric keyword ID, not the keyword name string. `{"keywords": {"insert": [{"name": "Program Name"}]}}` returns an error. `{"keywords": {"insert": [{"id": 2288296}]}}` works. The ID has to be looked up from an existing tagged finding. Not documented anywhere obvious. Cost 45 minutes.
 
-**4. The API keyword ID problem**
+**Email rendering**
 
-Adding the program tag to a finding via the API requires a numeric keyword ID, not the keyword name. `{"keywords": {"insert": [{"name": "My Program"}]}}` returns `VK.invalidObjectFormat`. `{"keywords": {"insert": [{"id": 2288296}]}}` works. The ID has to be looked up from an existing tagged finding before the first run. This cost 45 minutes and is documented nowhere obvious.
-
-**5. Email rendering**
-
-Generated HTML emails with `<!DOCTYPE html>` at the top. Apple Mail's WebKit renderer displays the DOCTYPE declaration as visible text at the top of the email. Same problem with HTML comments (`<!-- -->`).
-
-Fix: assert both are absent before writing the `.eml` file. The assertions now run on every email generation — if either check fails, the skill errors out before writing.
+Generated HTML emails with `<!DOCTYPE html>` at the top. Mail clients render the DOCTYPE as visible text at the top of the email. Same problem with HTML comments (`<!-- -->`). Fix: assert both are absent before writing the email file. The assertion runs on every generation — if it fails, the skill errors out before writing.
 
 ---
 
 ## What It Still Can't Do
 
-**It can't tell the difference between a real blocker and a forgotten update.**
+**It can't distinguish a real blocker from a stale ticket.**
 
-An engineer with 6 overdue findings might be waiting on a legal review (legitimate blocker, requires escalation to a different team). Or they might just not have looked at their tickets in two weeks (a nudge problem). The classification looks identical — both show as "Not Started, overdue." The follow-up is completely different.
+The git integration handles the normal path: engineer is working, PRs are flowing, radars are moving. It doesn't handle the exception: engineer is blocked on an external dependency, no PRs are being opened, radar hasn't moved in three weeks. That still looks like a stale ticket until someone says something.
 
-**It can't read a stale ETA.**
+[YOUR VOICE — how do you catch the blocked-but-silent cases? Is it the daily monitor, a 1:1, something else?]
 
-A finding targeting June 2 could be a real commitment or an engineer who set a date to stop the nudge emails. Both show as "In Progress, ETA 06/02." The skill reports what's there. Whether the ETA is credible requires a conversation.
+**It can't read whether an ETA is a real commitment.**
 
-**It can't write the "Help Needed" section.**
+A finding targeting June 2 could be a genuine engineering commitment or a date an engineer set to stop the automated nudge emails. Both look identical in the dashboard. Distinguishing them requires a conversation.
 
-The email has three sections: state breakdown (agent), key callouts (agent), and help needed (me). Help Needed is the section where I flag which items need escalation, which need a leadership decision, and which are at risk of missing the program deadline. That section requires understanding the organizational dynamics, the history of the item, and what "help" actually means in context. Every week I write that section myself, from the agent's output.
+**It can't decide what to escalate.**
+
+The dashboard tells me which findings are overdue, which are missing ETAs, which have committed dates past the program deadline. It doesn't tell me which ones to escalate to leadership vs. manage quietly. That's organizational judgment: who owns the dependency, what's the political cost of escalating, what would actually change if I do.
 
 ---
 
 ## The Numbers
 
-- **Before:** 90 minutes, weekly, manual
-- **After:** Under 2 minutes, daily, automated
-- **Portal commits since February 2026:** 216 PRs merged
-- **API efficiency:** ~85% reduction in tracker API calls via daily cache
-- **What I spend that time on now:** [YOUR VOICE — what do you actually do with the 90 minutes?]
+- Status report: 90 min/week manual → 2 min/day automated
+- Dashboard PRs merged: 216 since February 2026
+- Findings tracked: grew from 126 to 129 over the program lifetime
+- Data quality: went from "last updated whenever someone remembered" to "updated at every PR merge"
 
 ---
 
-## The One Thing I'd Do Differently
+## The One Thing That Made the Biggest Difference
 
-[YOUR VOICE — one honest thing you'd change if you started over. Some options to choose from:
-- Build the cache layer on day 1, not day 3
-- Design the component taxonomy before writing the first line of the skill
-- Set up the hidden/visible rule before the first stakeholder review
-- Something else entirely]
+Not the dashboard — the git integration.
+
+The dashboard made *my* job easier. The git integration made the *data* accurate. A beautiful automated report built on stale data is still a stale report. Fixing the data source was worth more than any amount of automation on top of it.
+
+[YOUR VOICE — anything else you want to add here? What would you tell another EPM starting this same project?]
 
 ---
 
-*Next: [Article 2 — One Config File to Provision an Entire Engineering Program]*
+*Next in this series: [Article 2 — One Config File to Provision an Entire Engineering Program]*
