@@ -112,19 +112,29 @@ Generated HTML emails with `<!DOCTYPE html>` at the top. Mail clients render the
 
 ## What It Still Can't Do
 
+**It can't track the full fix journey from PR merge to production — and that's still an open problem.**
+
+This is the biggest gap. The git integration handles the Dev side: engineer opens a PR, radar moves to In Development. PR merges, radar logs the commit. That part works.
+
+What we haven't solved reliably: the deployment trail. When a fix merges to main, does it actually get deployed to Stage? When it's in Stage, has it been validated? When was it promoted to Prod? These are separate pipeline events — build, deploy, validate, promote — and right now there's no auditable, automated link between "PR merged" and "fix confirmed in production."
+
+In practice, engineers post a comment on the radar or the EPM follows up manually. That's the same problem we started with — just one step further down the pipeline.
+
+The right solution probably involves deployment pipeline webhooks writing back to the radar at each stage gate. That work isn't done yet.
+
+This matters for any program with a compliance or certification requirement: an auditor doesn't want to see "In Verify" on a radar. They want a timestamp-stamped trail: code changed → merged → deployed to Stage on date X → deployed to Prod on date Y → validated by team Z. We have the first two. The rest is still manual.
+
 **It can't distinguish a real blocker from a stale ticket.**
 
-The git integration handles the normal path: engineer is working, PRs are flowing, radars are moving. It doesn't handle the exception: engineer is blocked on an external dependency, no PRs are being opened, radar hasn't moved in three weeks. That still looks like a stale ticket until someone says something.
-
-[YOUR VOICE — how do you catch the blocked-but-silent cases? Is it the daily monitor, a 1:1, something else?]
+The git integration handles the normal path — PRs flowing, radars moving. It doesn't handle the exception: engineer is blocked on an external dependency, nothing is moving, radar looks identical to a ticket nobody's touched. That still surfaces as a stale ETA, not a blocker, until someone says something.
 
 **It can't read whether an ETA is a real commitment.**
 
-A finding targeting June 2 could be a genuine engineering commitment or a date an engineer set to stop the automated nudge emails. Both look identical in the dashboard. Distinguishing them requires a conversation.
+A finding targeting June 2 could be a genuine engineering commitment or a date set to stop the automated nudge emails. Both look identical. Distinguishing them requires a conversation.
 
 **It can't decide what to escalate.**
 
-The dashboard tells me which findings are overdue, which are missing ETAs, which have committed dates past the program deadline. It doesn't tell me which ones to escalate to leadership vs. manage quietly. That's organizational judgment: who owns the dependency, what's the political cost of escalating, what would actually change if I do.
+The dashboard surfaces what's overdue, what's missing ETAs, what has dates past the program deadline. It doesn't decide which of those to escalate to leadership versus manage quietly. That's organizational judgment the agent doesn't have context for.
 
 ---
 
