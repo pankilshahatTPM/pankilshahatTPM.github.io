@@ -1,27 +1,41 @@
-# S1/Article 1 — DRAFT v2
+# S1/Article 1 — DRAFT v3
 # "I Stopped Chasing Engineers for Status Updates. Here's What I Built Instead."
-**Status:** First draft — [YOUR VOICE] markers need your words, everything else is from the actual build
-**Word count target:** 1,200–1,500
+**Status:** First draft — ready for your review
+**Word count target:** 1,400–1,700
 
 ---
 
-Every week I spent 90 minutes preparing a security program status report. I opened the issue tracker, filtered by component — six of them, no hierarchy — checked each engineer's state, copy-pasted numbers into a spreadsheet, and sent an email nobody was confident was accurate.
+When I picked up this security program, the tracker had roughly 500 radars in it.
 
-The problem wasn't that I was slow. The problem was that the data was wrong before I even started.
+No clear hierarchy. No consistent component classification. Tickets filed by different teams over different quarters using different conventions. Some were stale — the work had been done but nobody had closed them. Some were duplicates. Some were umbrella radars mixed in with actual findings, making counts meaningless. The "status" view in the native tracker showed everything flat, with no way to see at a glance what belonged to what.
+
+Before I could automate anything, I had to understand what I actually had.
+
+---
+
+## Step 0: Making Sense of 500 Radars
+
+I spent the first few weeks working directly with engineering leads across each component area to map what the radars actually represented. Which ones were active findings that needed to be fixed? Which were stale and could be closed? Which were duplicates filed at different times for the same underlying issue? Which were tracking documents rather than actual work items?
+
+This wasn't a mechanical exercise. It required understanding how each team thought about their work — what a "finding" meant to the infrastructure team vs. the agents team vs. the evaluations team — and translating that into a consistent taxonomy that would hold across all six components.
+
+The outcome: a clean hierarchy. One top-level program umbrella. Six area umbrellas, one per component. Findings linked as children of the appropriate area. Stale and duplicate radars closed. The result was 126 active findings, each with a clear owner, a clear component, and a clear relationship to the program.
+
+That number — 126 — is not a given. It's the result of a cleanup and a classification effort. And it's the foundation everything else in this article builds on. You can't automate a program you haven't organized.
 
 ---
 
 ## The Real Problem Was Two Problems
 
-When I started managing this program, 126 security findings were tracked across 6 engineering components with no parent/child hierarchy. Radar's native interface wasn't designed to answer the questions a program manager needs answered every day: *who owns what, what's the state of each component, what's overdue?* I tried building a tracker in Quip first. It worked for human viewing but couldn't be automated reliably — every update was still manual.
+With a clean dataset in place, the tracking problems became visible. There were two of them.
 
-The harder problem was the data source itself.
+**Problem 1 — Manual status aggregation**
+Even with 126 organized findings, preparing a weekly status report was 90 minutes of manual work. Open the tracker, filter by component — six of them — check each engineer's state, copy numbers into a spreadsheet, write an email. Radar's native interface wasn't designed to answer the questions a program manager needs: *who owns what, what's the state of each component, what's overdue?* I tried building a tracker in Quip first. It worked for human viewing but couldn't be automated reliably — every update was still manual.
 
+**Problem 2 — Unreliable source data**
 Engineers were supposed to update their radar tickets as they made progress. In practice, they didn't — not because they didn't care, but because updating a ticket manually is friction that competes with actually fixing the issue. A finding would be code-complete, tested, and deployed to staging. The radar still said "Analyze." I had no way to know unless I asked.
 
-So I was spending 90 minutes each week building a report from data I knew was stale.
-
-The consequence was that I couldn't give an accurate picture on demand. When my manager asked for a status update mid-week, I was estimating. Missed dependencies got caught late — a finding that looked "In Progress" turned out to be blocked on a team that hadn't been looped in. By the time the dependency surfaced, we'd lost two weeks.
+The consequence: I couldn't give an accurate picture on demand. When my manager asked for a status update mid-week, I was estimating. Missed dependencies got caught late — a finding that looked "In Progress" turned out to be blocked on a team that hadn't been looped in. By the time the dependency surfaced, we'd lost two weeks.
 
 ---
 
