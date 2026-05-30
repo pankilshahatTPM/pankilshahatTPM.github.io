@@ -136,7 +136,7 @@ In practice, engineers post a comment on the radar or the EPM follows up manuall
 
 The right solution probably involves deployment pipeline webhooks writing back to the radar at each stage gate. That work isn't done yet.
 
-This matters for any program with a compliance or certification requirement: an auditor doesn't want to see "In Verify" on a radar. They want a timestamp-stamped trail: code changed → merged → deployed to Stage on date X → deployed to Prod on date Y → validated by team Z. We have the first two. The rest is still manual.
+This isn't specific to compliance programs. It's true for any engineering program, at any scale. When something breaks in production and you need to answer "when was this fix deployed and who validated it," you want a timestamped trail: code changed → merged → deployed to Stage on date X → deployed to Prod on date Y → validated by team Z. Every engineering organization that ships software needs this answer. Right now we have the first two steps. The rest is still manual.
 
 **It can't distinguish a real blocker from a stale ticket.**
 
