@@ -1,15 +1,17 @@
 # S1/Article 2 — DRAFT v1
-# "One Config File to Provision an Entire Engineering Program"
+# "The EPM Engineering Tracker: How Every Learning From One Program Became a Reusable Toolkit"
 **Status:** First draft — no [YOUR VOICE] markers, fully derived from the repo
 **Word count:** ~1,400
 
 ---
 
-After building the status automation for Secure Endor, I picked up a second program. Then a third.
+The previous article described how I went from 500 unorganized radars to a running program: cleaning up the hierarchy, automating the status sync, wiring up git-to-radar so the data stayed current, and then replacing verbose broadcast emails with targeted agent-driven escalations.
 
-Every time, I spent the first two weeks doing the same setup: create the issue tracker hierarchy, build the dashboard, configure the status email, set up the weekly nudge, wire up the escalation rules. None of that work was the program. It was infrastructure. And I was rebuilding it from scratch each time, with slightly different field conventions, slightly different component names, slightly different email lists.
+Every one of those solutions was built under fire — discovered because something broke, designed around a specific program's constraints, tested in production. They worked. But they were hardcoded to that program.
 
-By the third program I had a clear picture of the real problem: I was solving the same problem repeatedly without a system. So I built the system.
+When I picked up a second program, I rebuilt the same infrastructure from scratch with slightly different field conventions, slightly different component names, slightly different email lists. Same problems, same solutions, different config values. By the third program it was clear: I was solving the same thing repeatedly without a system.
+
+The EPM Engineering Tracker is that system. It's not a new solution — it's every solution from the first program, generalized and packaged so the next EPM doesn't spend two weeks on infrastructure before doing any actual program work.
 
 ---
 
@@ -165,12 +167,18 @@ If an area gets added or renamed mid-program, the config needs to be updated and
 
 ## Why This Exists
 
-The first version of every tool I built for Secure Endor was hardcoded to that program. Radar IDs, email addresses, component names — all literal values in the skill files. It worked. It also meant every new program needed a new skill rewrite.
+Every tool I built for the first program was hardcoded to that program. Radar IDs, email addresses, component names, escalation rules — literal values in the skill files. It worked. It also meant every new program needed a rewrite.
 
-The engineering tracker reifies what I learned the hard way: the logic is the same across programs. The config is what changes. Separating them means the next EPM who picks up a program doesn't spend two weeks on infrastructure. They spend twenty minutes on a form and twenty minutes on the bootstrap command.
+But more than the technical debt, it meant every new EPM who picked up a similar program would hit the same problems I did — the 500-radar chaos, the stale source data, the verbose emails nobody read — and solve them from scratch. Or not solve them, and just live with the dysfunction.
 
-The lessons from Article 1 are already in the code.
+The EPM Engineering Tracker exists because the problems are the same across programs. The hierarchy cleanup is codified in the bootstrap. The daily sync embeds the classification logic. The monitor knows to send one email per DRI, not one per finding. The reply processor knows a "blocked" reply needs a calendar block and a "done" reply needs nothing.
+
+The config is what changes. The solutions don't. Separating them means the next EPM spends twenty minutes on a form and twenty minutes on the bootstrap command — not two weeks on infrastructure before doing any program work.
+
+Every lesson from the first program is already in the code.
 
 ---
+
+*Next: [Article 3 — I Built Three Agents to Run My Security Program. Here's What Actually Happened.]*
 
 *Next in this series: [Article 3 — I Built Three Agents to Run My Security Program. Here's What Actually Happened.]*

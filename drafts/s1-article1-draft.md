@@ -205,10 +205,14 @@ The dashboard made *my* job easier. The git integration made the *data* accurate
 
 I wouldn't tell them anything. I'd hand them a config file.
 
-Every problem this article describes — the manual aggregation, the stale data, the inconsistent component taxonomy, the missing ETAs, the weekly status email — I've packaged into a reusable toolkit called the EPM Engineering Tracker. One YAML config file describing your program. One command to provision the Radar hierarchy, the live dashboard, the skills, and the email schedule. The same solutions I built for this program, ready to deploy to the next one.
+Every hard thing in this article — the hierarchy cleanup, the automated dashboard, the git integration that keeps source data current, the targeted escalation emails to the right people, the meeting blocks for critical tickets, the reply processor that routes DRI responses back into the tracker — is packaged into a reusable toolkit called the EPM Engineering Tracker.
 
-The lessons are already in the code.
+One YAML config describing your program. One bootstrap command that provisions the issue tracker hierarchy, the live dashboard, the Quip doc, and all the skills. The lessons from this program — what worked, what broke, what we discovered only after the first solution was running — are already in the code.
+
+The next EPM who picks up a program like this doesn't start with 500 unorganized radars and two weeks of infrastructure work. They start with a config file and a working system on day one.
+
+That's the next article.
 
 ---
 
-*Next: [Article 2 — One Config File to Provision an Entire Engineering Program — how the EPM Engineering Tracker works and why it exists]*
+*Next: [Article 2 — The EPM Engineering Tracker: How Every Learning From This Program Became a Reusable Toolkit]*
