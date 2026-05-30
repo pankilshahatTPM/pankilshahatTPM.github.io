@@ -155,8 +155,14 @@ Not the dashboard — the git integration.
 
 The dashboard made *my* job easier. The git integration made the *data* accurate. A beautiful automated report built on stale data is still a stale report. Fixing the data source was worth more than any amount of automation on top of it.
 
-[YOUR VOICE — anything else you want to add here? What would you tell another EPM starting this same project?]
+## What I'd Tell Another EPM Starting This
+
+I wouldn't tell them anything. I'd hand them a config file.
+
+Every problem this article describes — the manual aggregation, the stale data, the inconsistent component taxonomy, the missing ETAs, the weekly status email — I've packaged into a reusable toolkit called the EPM Engineering Tracker. One YAML config file describing your program. One command to provision the Radar hierarchy, the live dashboard, the skills, and the email schedule. The same solutions I built for this program, ready to deploy to the next one.
+
+The lessons are already in the code.
 
 ---
 
-*Next in this series: [Article 2 — One Config File to Provision an Entire Engineering Program]*
+*Next: [Article 2 — One Config File to Provision an Entire Engineering Program — how the EPM Engineering Tracker works and why it exists]*
