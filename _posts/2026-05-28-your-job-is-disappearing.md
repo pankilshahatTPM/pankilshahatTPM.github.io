@@ -4,7 +4,6 @@ title: "Your Job Is Disappearing. I Watched Mine Disappear Six Times."
 permalink: /blog/your-job-is-disappearing-i-watched-mine-disappear-six-times/
 date: 2026-05-28
 ---
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
