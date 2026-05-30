@@ -21,7 +21,7 @@ Engineers were supposed to update their radar tickets as they made progress. In 
 
 So I was spending 90 minutes each week building a report from data I knew was stale.
 
-[YOUR VOICE — 1–2 sentences on what the consequence was. Did you have inaccurate escalations? Did engineering leads push back on your counts? Did leadership make decisions on wrong numbers?]
+The consequence was that I couldn't give an accurate picture on demand. When my manager asked for a status update mid-week, I was estimating. Missed dependencies got caught late — a finding that looked "In Progress" turned out to be blocked on a team that hadn't been looped in. By the time the dependency surfaced, we'd lost two weeks.
 
 ---
 
@@ -72,7 +72,7 @@ Deploy to prod → radar moves to Closed.
 
 The engineer does the work. The ticket updates itself.
 
-[YOUR VOICE — what was the hardest part of getting this integration in place? Was it the SRE team, the Radar API permissions, getting engineers to include the radar ID in their PR titles, or something else?]
+The hardest part wasn't the integration itself — it was the rollout. The integration needed to be deployed and tested, documented clearly enough that SRE teams would trust it, and then deployed across 60+ repositories spanning multiple git organizations. Getting SRE buy-in meant doing the work first: build it, test it, write the runbook, then nudge the right people to actually ship it across the fleet. The engineering is the easy part. The organizational deployment is the work.
 
 This was the more impactful fix of the two. The automated dashboard was only useful if the data it read was accurate. The git integration made the data accurate.
 
@@ -126,7 +126,9 @@ This matters for any program with a compliance or certification requirement: an 
 
 **It can't distinguish a real blocker from a stale ticket.**
 
-The git integration handles the normal path — PRs flowing, radars moving. It doesn't handle the exception: engineer is blocked on an external dependency, nothing is moving, radar looks identical to a ticket nobody's touched. That still surfaces as a stale ETA, not a blocker, until someone says something.
+The git integration handles the normal path — PRs flowing, radars moving. It doesn't handle the exception: engineer is blocked on an external dependency, nothing is moving, radar looks identical to a ticket nobody's touched.
+
+Two things help here. First, a process change: requiring engineers to set a milestone month and target release date on every open finding. Once those fields are set, a scheduled skill can check periodically whether a radar has moved from its initial state to In Development (or beyond) by the release freeze window. If it hasn't moved, it surfaces as a risk — not just a stale ticket. Second, the nudge cadence changes: instead of "why hasn't this been updated," the question becomes "this is due in your next release window and nothing has merged yet — what's the blocker?" That's a much more productive conversation.
 
 **It can't read whether an ETA is a real commitment.**
 
