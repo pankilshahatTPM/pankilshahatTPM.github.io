@@ -154,7 +154,27 @@ The dashboard surfaces what's overdue, what's missing ETAs, what has dates past 
 
 ---
 
-## The Numbers
+## What Didn't Work: The Communication Layer
+
+The data was clean. The dashboard was accurate. The status email generated itself daily. And stakeholders stopped reading it.
+
+The weekly email was too verbose — 126 findings summarized into a table that required context to interpret. Engineers who were doing their job had no reason to open it. Managers who were busy had no patience for it. The email became the kind of report that gets a "thanks" reply and gets filed.
+
+Slack was worse. Status updates posted to the program channel were ignored within hours, buried under other messages. The information was there. Nobody was acting on it.
+
+This was a different failure than the ones earlier in this article. The data problem was about accuracy — the information was wrong. The communication problem was about signal-to-noise — the information was right but it reached everyone whether it was relevant to them or not.
+
+A weekly summary email tells 40 engineers about 126 findings. Most of those engineers own 3–5 findings. They don't need 121 rows they're not responsible for. What they need is one targeted message about their own items when something requires action — not a broadcast that requires them to filter for relevance themselves.
+
+The automated report was the right solution to the wrong problem. It made the EPM's aggregation work disappear. It didn't make the right information reach the right person at the right time.
+
+That's a routing problem, not a reporting problem. And it's what led to building the agent layer on top of this — three agents that don't broadcast status, but route targeted actions: to the right DRI when their finding is overdue, to the right manager when a component is at risk, to the EPM when a reply indicates a genuine blocker. One message per person, only when action is needed.
+
+That's the next article.
+
+---
+
+
 
 - Status report: 90 min/week manual → 2 min/day automated
 - Dashboard PRs merged: 216 since February 2026
